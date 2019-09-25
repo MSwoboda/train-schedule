@@ -7,23 +7,73 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <!-- Moment.js Reference -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <!-- Firebase References -->
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
+
+
     <title>Train Schedule</title>
 </head>
 
 <body>
-
-
 
     <div class="container">
 
 
         <div class="jumbotron">
             <h1 class="display-4">Train Schedule</h1>
+
+            <th scope="col">Name</th>
+            <th scope="col">Destination</th>
+            <th scope="col">Frequency</th>
+            <th scope="col">Next Arrival</th>
+            <th scope="col">Minutes Away</th>
+            <th scope="col"></th>
+
         </div>
         <div class="panel-group">
             <div class="panel panel-primary">
                 <div class="panel-heading">Schedule</div>
-                <div class="panel-body">Panel Content</div>
+                <div class="panel-body ">
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Destination</th>
+                                <th scope="col">Frequency</th>
+                                <th scope="col">Next Arrival</th>
+                                <th scope="col">Minutes Away</th>
+                                <th scope="col"></th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="plan-container" >
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>Otto</td>
+                                <td>Otto</td>
+
+                                <td>
+                                    <a class="delete-icon" href="">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
+
+                                </td>
+                            </tr>
+
+
+
+                        </tbody>
+                    </table>
+
+
+
+                </div>
             </div>
         </div>
 
@@ -34,45 +84,41 @@
                     <form>
                         <div class="form-group">
                             <label for="trainName">Train Name</label>
-                            <input type="trainName" class="form-control" id="trainName" aria-describedby="emailHelp" placeholder="Thomas T">
-                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                            <input type="text" class="form-control" id="trainName" aria-describedby="emailHelp"
+                                placeholder="Thomas The Tank Engine" required>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Destination</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                            <label for="destination">Destination</label>
+                            <input type="text" class="form-control" id="destination" aria-describedby="emailHelp"
+                                placeholder="San Diego" required>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">First Train Time</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                            <label for="firstTime">First Train Time (HH:mm military time)</label>
+                            <input type="text" class="form-control" id="firstTime" aria-describedby="emailHelp"
+                                placeholder="21:00" min="00:00" max="24:00" required>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Frequency</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                            <label for="frequency">Frequency (min)</label>
+                            <input type="text" class="form-control" id="frequency" aria-describedby="emailHelp"
+                                placeholder="30" required>
                         </div>
-
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button id="add-train" class="btn btn-primary" type="submit">Submit</button>
                     </form>
-
-
-
-
-
                 </div>
-
             </div>
-
-
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
 
     <script>
         var config = {
@@ -88,7 +134,90 @@
         firebase.initializeApp(config);
 
         // Create a variable to reference the database.
-        var database = firebase.database();
+        let database = firebase.database();
+
+        let trainArray;
+
+        //TODO: flatten structure to 
+        let trainObj = {
+            trainName: "",
+            destination: "",
+            firstTime: "",
+            frequency: ""
+        }
+
+
+        $("#add-train").on("click", function (event) {
+            event.preventDefault();
+
+
+            trainObj.trainName = $("#trainName").val().trim();
+            trainObj.destination = $("#destination").val().trim();
+            trainObj.firstTime = moment($("#firstTime").val().trim(), "HH:mm").format("HH:mm");
+            trainObj.frequency = $("#frequency").val().trim();
+
+            trainArray.push(trainObj);
+
+            database.ref().set({
+
+                trainArray: trainArray,
+
+            });
+
+
+
+        });
+
+
+        // Firebase watcher + initial loader HINT: .on("value")
+        database.ref().on("value", function (snapshot) {
+            trainArray = snapshot.val().trainArray;
+            //$("#plan-container tbody").empty();
+
+            // Log everything that's coming out of snapshot
+            //console.log(snapshot.val());
+            //console.log(snapshot.val().trainArray);
+            console.log("appendign");
+            console.log(trainArray);
+
+            for (let index = 0; index < trainArray.length; index++) {
+                console.log("appendign");
+
+                $("#plan-container").append(
+
+                    `  <tr>
+                            <th scope="col">${trainArray[index].trainName}</th>
+                            <th scope="col">${trainArray[index].destination}</th>
+                            <th scope="col">${trainArray[index].firstTime}</th>
+                            <th scope="col">${trainArray[index].frequency}</th>
+                            <th scope="col"></th>
+                            <th scope="col">
+                            
+                                    <a class="delete-icon" href="">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
+                            
+                            </th>
+
+                          </tr>`
+
+
+                )
+
+            }
+
+            // Change the HTML to reflect
+            // $("#name-display").text(snapshot.val().name);
+            // $("#email-display").text(snapshot.val().email);
+            // $("#age-display").text(snapshot.val().age);
+            // $("#comment-display").text(snapshot.val().comment);
+
+            // Handle the errors
+        }, function (errorObject) {
+            console.log("Errors handled: " + errorObject.code);
+        });
+
+
     </script>
 
 </body>
