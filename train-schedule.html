@@ -12,26 +12,23 @@
     <!-- Firebase References -->
     <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
-
+<link rel="stylesheet" href="style.css">
 
     <title>Train Schedule</title>
 </head>
 
 <body>
-
+<div class="row"><br></div>
     <div class="container">
 
 
-        <div class="jumbotron">
+        <div class="jumbotron  bg-primary text-light">
             <h1 class="display-4">Train Schedule</h1>
-
-            <th scope="col">Name</th>
-            <th scope="col">Destination</th>
-            <th scope="col">Frequency</th>
-            <th scope="col">Next Arrival</th>
-            <th scope="col">Minutes Away</th>
-            <th scope="col"></th>
-
+            <p class="lead"></p>
+            <hr class="my-4">
+            <p>How do you find a missing train? Follow the tracks.
+            </p>
+    
         </div>
         <div class="panel-group">
             <div class="panel panel-primary">
@@ -50,21 +47,8 @@
 
                             </tr>
                         </thead>
-                        <tbody id="plan-container" >
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>Otto</td>
-                                <td>Otto</td>
+                        <tbody id="plan-container">
 
-                                <td>
-                                    <a class="delete-icon" href="">
-                                        <span class="glyphicon glyphicon-trash"></span>
-                                    </a>
-
-                                </td>
-                            </tr>
 
 
 
@@ -99,7 +83,7 @@
                         </div>
                         <div class="form-group">
                             <label for="frequency">Frequency (min)</label>
-                            <input type="text" class="form-control" id="frequency" aria-describedby="emailHelp"
+                            <input type="number" class="form-control" id="frequency" aria-describedby="emailHelp"
                                 placeholder="30" required>
                         </div>
                         <button id="add-train" class="btn btn-primary" type="submit">Submit</button>
@@ -136,7 +120,6 @@
         // Create a variable to reference the database.
         let database = firebase.database();
 
-        let trainArray;
 
         //TODO: flatten structure to 
         let trainObj = {
@@ -150,73 +133,107 @@
         $("#add-train").on("click", function (event) {
             event.preventDefault();
 
-
             trainObj.trainName = $("#trainName").val().trim();
             trainObj.destination = $("#destination").val().trim();
             trainObj.firstTime = moment($("#firstTime").val().trim(), "HH:mm").format("HH:mm");
             trainObj.frequency = $("#frequency").val().trim();
 
-            trainArray.push(trainObj);
-
-            database.ref().set({
-
-                trainArray: trainArray,
-
-            });
-
-
+            database.ref().push(trainObj);
 
         });
 
 
         // Firebase watcher + initial loader HINT: .on("value")
         database.ref().on("value", function (snapshot) {
-            trainArray = snapshot.val().trainArray;
-            //$("#plan-container tbody").empty();
 
-            // Log everything that's coming out of snapshot
-            //console.log(snapshot.val());
-            //console.log(snapshot.val().trainArray);
-            console.log("appendign");
-            console.log(trainArray);
+            if (snapshot.val()===null) { $("#plan-container").empty();}
 
-            for (let index = 0; index < trainArray.length; index++) {
-                console.log("appendign");
+            try {
+                trainArray = Object.values(snapshot.val())
+                $("#plan-container").empty();
 
-                $("#plan-container").append(
+                // Log everything that's coming out of snapshot
 
-                    `  <tr>
-                            <th scope="col">${trainArray[index].trainName}</th>
-                            <th scope="col">${trainArray[index].destination}</th>
-                            <th scope="col">${trainArray[index].firstTime}</th>
-                            <th scope="col">${trainArray[index].frequency}</th>
-                            <th scope="col"></th>
-                            <th scope="col">
-                            
-                                    <a class="delete-icon" href="">
-                                        <span class="glyphicon glyphicon-trash"></span>
-                                    </a>
-                            
-                            </th>
+                //console.log(snapshot.val().trainArray);
+                //console.log("appendign");
+                //console.log(trainArray);
 
-                          </tr>`
+                for (let index = 0; index < trainArray.length; index++) {
+                    let tFrequency = trainArray[index].frequency
+                    let tArrive = 0;
 
+                    var firstTimeConverted = moment(trainArray[index].firstTime, "HH:mm", "HH:mm").subtract(1, "years");
 
-                )
+                    //Get Current time
+                    var currentTime = moment();
+                    var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+
+                    var tRemainder = diffTime % tFrequency;
+                    var tMinutesTillTrain = tFrequency - tRemainder;
+                    var nextTrain = moment().add(tMinutesTillTrain, "minutes").format("HH:mm");
+
+                    let tAway = 0;
+
+                    $("#plan-container").append(
+                        `<tr ">
+                <th scope="row">${trainArray[index].trainName}</th>
+                <th>${trainArray[index].destination}</th>
+                <th>${trainArray[index].frequency}</th>
+                <th>${nextTrain}</th>
+                <th>${tMinutesTillTrain}</th>
+                <th>
+                        <a class="delete"  object-name="${trainArray[index].trainName}" href="#">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                </th>
+              </tr>`
+                    )
+
+                }
+
+                // Clears all of the text-boxes
+                $("#trainName").val("");
+                $("#destination").val("");
+                $("#firstTime").val("");
+                $("#frequency").val("");
 
             }
+            catch (err) {
+                console.log("Failed to Display  Train Vals")
+            }
 
-            // Change the HTML to reflect
-            // $("#name-display").text(snapshot.val().name);
-            // $("#email-display").text(snapshot.val().email);
-            // $("#age-display").text(snapshot.val().age);
-            // $("#comment-display").text(snapshot.val().comment);
 
             // Handle the errors
         }, function (errorObject) {
             console.log("Errors handled: " + errorObject.code);
+
+
         });
 
+        $(document).on("click", ".delete", function (event) {
+            event.preventDefault();
+
+            console.log($(this).attr("object-name"))
+
+
+            database.ref().orderByChild("trainName").equalTo($(this).attr("object-name")).once('value', function (snapshot) {
+                //snapshot would have list of NODES that satisfies the condition
+                console.log(snapshot.val())
+                console.log(Object.keys(snapshot.val())[0])
+                console.log("got here");
+                try {
+                    database.ref(Object.keys(snapshot.val())[0]).remove()
+
+                } catch (error) {
+                    console.log("Delete Failed");
+                    location.reload();
+
+                }
+
+
+            });
+
+        });
 
     </script>
 
